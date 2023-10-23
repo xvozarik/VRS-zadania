@@ -31,11 +31,11 @@
     <img src="https://github.com/VRS-Predmet/vrs_cvicenie_9/blob/master/images/sensor_board.jpg" width="350" title="GPIO pin block scheme">
 </p>
 
-- obsahuje viacero senzorových jednotiek: acc + magnetometer (LSM303AGR), IMU - acc + gyro (LSM6DSL), sonzor vlhkosti a teploty (HTS221), barometrický snímač (LPS22HB) ...
-- v tomto prípade MCU komunikuje s IMU (acc a gyro) LSM6DSL
+- obsahuje viacero senzorových jednotiek: magnetometer (LIS3MDL), IMU - acc + gyro (LSM6DS0), sonzor vlhkosti a teploty (HTS221), barometrický snímač (LPS25HB) ...
+- v tomto prípade MCU komunikuje s IMU (acc a gyro) LSM6DS0
 - na obrázku je znázornené zapojenie senzorovej dosky k vývojovej doske s MCU
 
-- ukážkový program komunikuje s LSM6DSL prostredníctvom I2C a číta hodnotu zrýchlení v osiach x, y, z
+- ukážkový program komunikuje s LSM6DS0 prostredníctvom I2C a číta hodnotu zrýchlení v osiach x, y, z
 
 # Serial oscilloscope
 <p align="center">
@@ -50,7 +50,7 @@
 
 # Zadanie 5 (10b)
 
-Vytvoriť aplikáciu, ktorá bude posielať dáta získané zo senzorov (LPS22HB, HTS221) cez USART do PC. Zobrazovanými údajmi budú teplota, relatívna vlhkosť vzduchu, tlak vzduchu a relatívna výška od zeme.
+Vytvoriť aplikáciu, ktorá bude posielať dáta získané zo senzorov (LPS25HB, HTS221) cez USART do PC. Zobrazovanými údajmi budú teplota, relatívna vlhkosť vzduchu, tlak vzduchu a relatívna výška od zeme.
 
 ### Úlohy
 
@@ -58,7 +58,7 @@ Vytvoriť aplikáciu, ktorá bude posielať dáta získané zo senzorov (LPS22HB
 
 2. Vytvorenie funkcii v zdrojovom súbore "i2c.c" pre čítanie a zápis dát po I2C zbernici s možnosťou single aj multi byte prenosu (čítanie/zápis). Ak hodnota registra pozostáva z viacerých bytov, musí sa použit multi-byte prenos a byť vyčítaná naraz (nie postupne po bytoch vo viacerych čítaniach). Funckie z "i2c.c/h" nesmú byť priamo používané v knižnici senzora ale musia byť registrované ako "callback funkcie" (oddelenie konfiguracie MCU od konfiguracie senzora a jeho aplikacie).
 
-3. Vytvoriť si vlastnú knižnicu pre senzory LPS22HB a HTS221
+3. Vytvoriť si vlastnú knižnicu pre senzory LPS25HB a HTS221
    - Vytvoriť zdrojový priečinok - v "Project explorer" -> pravé kliknutie na "Váš project" -> "new" -> "Source folder" (názov priečinku podľa názvu senzora) -> pravé kliknutie na nový priečinok a "Add/remove include path ..." .
    - V prečinku senzora vytvoriť zdrojový a hlavičkový súbor pre daný senzor.
    - V hlavičkovom súbore sa budú nachádzať makrá pre adresy registrov senzora a prípadne hodnoty daných registrov. Taktiež dekláracie funkcii pre prácu so senzorom.
