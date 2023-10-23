@@ -1,7 +1,7 @@
 # Náplň cvičenia
 - zoznámenie sa s I2C
 - komunikácia s IMU prostredníctvom I2C
-- predstavenie zadania s I2C senzorom
+- predstavenie zadania s I2C a senzorom
 
 # I2C zbernica
 
@@ -54,19 +54,19 @@ Vytvoriť aplikáciu, ktorá bude posielať dáta získané zo senzorov (LPS22HB
 
 ### Úlohy
 
-1. Vytvorenie vlastného git repozitára - viditeľné commity, nastavenie ".gitignore".
+1. Vytvorenie vlastného projektu pomocou CubeMX a vlastného git repozitára - viditeľné commity, nastavenie ".gitignore".
 
-2. Vytvorenie funkcii v zdrojovom subore "i2c.c" pre čítanie a zápis dát po I2C zbernici s možnosťou single aj multi byte prenosu. Ak hodnota registra pozostava z viacerych bytov, musi sa pouzit multibyte prenos a byt vycitana naraz (nie postupne po bytoch vo viacerych citaniach). Funckie z "i2c.c/h" nesmu byt priamo pouzivane v kniznici senzora ale musia byt registrovane ako "callback funkcie" (oddelenie konfiguracie MCU od konfiguracie senzora a jeho aplikacie).
+2. Vytvorenie funkcii v zdrojovom súbore "i2c.c" pre čítanie a zápis dát po I2C zbernici s možnosťou single aj multi byte prenosu (čítanie/zápis). Ak hodnota registra pozostáva z viacerých bytov, musí sa použit multi-byte prenos a byť vyčítaná naraz (nie postupne po bytoch vo viacerych čítaniach). Funckie z "i2c.c/h" nesmú byť priamo používané v knižnici senzora ale musia byť registrované ako "callback funkcie" (oddelenie konfiguracie MCU od konfiguracie senzora a jeho aplikacie).
 
 3. Vytvoriť si vlastnú knižnicu pre senzory LPS22HB a HTS221
-   -  Zdrojovy priecinok - v "Project explorer" -> pravy click "Vas project" -> "new" -> "Source folder" (nazov priecinku podla senzora) -> pravy click na novy priecinok a "Add/remove include path ..." .
-   - V precinku senzora vytvorit zdrojovy a hlavickovy subor pre dany senzor.
-   - V hlavickovom subore sa budu nachadzat makra pre adresy registrou senzora a pripadne hodnoty danych registrov. Deklaracie funkcii pre pracu so senzorom.
-   - V zdrojovom subore sa budu nachadzat funkcie pre inicializaciu, vycitavanie a zapisovanie dat, spracovanie vycitanych dat, ziskanie hodnoty meranej veliciny.
+   - Vytvoriť zdrojový priečinok - v "Project explorer" -> pravé kliknutie na "Váš project" -> "new" -> "Source folder" (názov priečinku podľa názvu senzora) -> pravé kliknutie na nový priečinok a "Add/remove include path ..." .
+   - V prečinku senzora vytvoriť zdrojový a hlavičkový súbor pre daný senzor.
+   - V hlavičkovom súbore sa budú nachádzať makrá pre adresy registrov senzora a prípadne hodnoty daných registrov. Taktiež dekláracie funkcii pre prácu so senzorom.
+   - V zdrojovom súbore sa budú nachádzat vaše vlastné funkcie pre inicializáciu, vyčítavanie a zapisovanie dát zo/do senzora, spracovanie vyćítaných dát, získanie hodnoty meranej veličiny.
      
-4. Knižnica musí obsahovať inicializačnú funkciu, ktorej úlohou je overiť pripojenie senzora a vykonať počiatočnú konfiguráciu senzora. Ako prvé overíte, či viete prečítať "WHO_AM_I" register a či hodnota, ktorú vám senzor vráti je totožná s hodnotou z dokumentácie. Následne zapíšete do registrov sonzora svoju vlastnú konfiguráciu. Prejdite si dokumentáciu, zistite čo všetko viete nastavovať pomocou registrov a podľa potreby si zvoľte vlastnú konfiguráciu senzora (frekvencia merania, merací rozsah ... ).
+4. Knižnica musí obsahovať inicializačnú funkciu, ktorej úlohou je overiť pripojenie senzora a musí vykonať počiatočnú konfiguráciu senzora. Ako prvé overíte, či viete prečítať "WHO_AM_I" register a či hodnota, ktorú vám senzor vráti je totožná s hodnotou z dokumentácie. Následne zapíšete do registrov sonzora svoju vlastnú konfiguráciu. Prejdite si dokumentáciu, zistite čo všetko viete nastavovať pomocou registrov a podľa potreby si zvoľte vlastnú konfiguráciu senzora (frekvencia merania, merací rozsah ... ).
 
-5. Knižnica musí obsahovať funkciu na čítanie/zapisovanie dáť zo/do senzora. Zapisovanie do senzora bude slúžiť napr. pri konfigurácii senzora a čítanie bude slúžiť na získavanie aktuálneho stavu senzora (ak je to potrebné), hodnôt meraných veličín ... . Ak zo senzora budete čítať viac ako jednu veličinu (napr. teplota a vlhkosť), tak pre každú meranú veličinu vytvorte samostatnú funkciu na jej čítanie.
+5. Knižnica musí obsahovať funkciu na čítanie/zapisovanie dát zo/do senzora. Zapisovanie do senzora bude slúžiť napr. pri konfigurácii senzora a čítanie bude slúžiť na získavanie aktuálneho stavu senzora (ak je to potrebné), hodnôt meraných veličín ... . Ak zo senzora budete čítať viac ako jednu veličinu (napr. teplota a vlhkosť), tak pre každú meranú veličinu vytvorte samostatnú funkciu na jej čítanie.
 
 6. Údaje, ktoré sa majú zobrazovať ale nie su priamo získateľné zo senzora je potrebné na základe dostupných meraných hodnôt vypočítať (napr. relatívna výška od zeme, ...). Pre takýto "post processing", kedy sa z meraných údajov snažite niečo vypočítať vytvorte samostatnú funkciu.
 
