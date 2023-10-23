@@ -25,7 +25,7 @@
 - MCU má rolu "master", číta z registrov alebo zapisuje do registrov senzora ("slave") 
 
 
-# IKS01A1/A2 senzorová doska
+# IKS01A1 senzorová doska
 
 <p align="center">
     <img src="https://github.com/VRS-Predmet/vrs_cvicenie_9/blob/master/images/sensor_board.jpg" width="350" title="GPIO pin block scheme">
