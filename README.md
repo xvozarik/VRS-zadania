@@ -7,18 +7,18 @@
 
 ### Základné posielanie dát
 <p align="center">
-    <img src="https://github.com/VRS-Predmet/vrs_cvicenie_9/blob/master/docs/I2C_Basic_Address_and_Data_Frames.jpg" width="950" title="">
+    <img src="docs/I2C_Basic_Address_and_Data_Frames.jpg" width="950" title="">
 </p>
 
 ### Posielanie väčšieho množstva dát
 <p align="center">
-    <img src="https://github.com/VRS-Predmet/vrs_cvicenie_9/blob/master/docs/I2C_Repeated_Start_Conditions.jpg" width="550" title="">
+    <img src="docs/I2C_Repeated_Start_Conditions.jpg" width="550" title="">
 </p>
 
 # Konfigurácia I2C
 
 <p align="center">
-    <img src="https://github.com/VRS-Predmet/vrs_cvicenie_9/blob/master/images/i2c_conf.PNG" width="850" title="GPIO pin block scheme">
+    <img src="images/i2c_conf.PNG" width="850" title="GPIO pin block scheme">
 </p>
 
 - na obrázku je zobrazená konfigurácia I2C - okrem zobrazených parametrov je nutné povoliť globálne prerušenia od I2C ("error interrupt" nie je momentálne potrebný)
@@ -28,7 +28,7 @@
 # IKS01A1 senzorová doska
 
 <p align="center">
-    <img src="https://github.com/VRS-Predmet/vrs_cvicenie_9/blob/master/images/sensor_board.jpg" width="350" title="GPIO pin block scheme">
+    <img src="images/sensor_board.jpg" width="350" title="GPIO pin block scheme">
 </p>
 
 - obsahuje viacero senzorových jednotiek: magnetometer (LIS3MDL), IMU - acc + gyro (LSM6DS0), sonzor vlhkosti a teploty (HTS221), barometrický snímač (LPS25HB) ...
@@ -39,7 +39,7 @@
 
 # Serial oscilloscope
 <p align="center">
-    <img src="https://github.com/VRS-Predmet/vrs_cvicenie_9/blob/master/images/serial_osc.png" width="950" title="Serial oscilloscope">
+    <img src="images/serial_osc.png" width="950" title="Serial oscilloscope">
 </p>
 
 - aplíkácia pre vykreslovanie dát, ktoré sú priaté prostredníctvom sériovej komunikácie vo formáte CSV (comma-separated values) - napríklad "123,158,39.789,5639"
