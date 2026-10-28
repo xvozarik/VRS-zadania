@@ -1,0 +1,11 @@
+bin/
+obj/
+build/
+*.o
+*.elf
+*.hex
+*.exe
+*.out
+.vscode/
+.vs/
+Debug/
