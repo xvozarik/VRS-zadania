@@ -1,5 +1,5 @@
 /*
- * lps25hb.h
+ * lps22hb.h
  *
  *  Created on: 4. 11. 2026
  *      Author: dell

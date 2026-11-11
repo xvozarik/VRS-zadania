@@ -6,7 +6,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
+  * <h2><center>&copy; Copyright (c) 2026 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
   * This software component is licensed by ST under BSD 3-Clause license,
@@ -21,7 +21,9 @@
 #include "i2c.h"
 
 /* USER CODE BEGIN 0 */
-uint8_t i2c_rx_data = 0;
+static uint8_t *i2c_rx_ptr = 0;
+extern volatile uint32_t ms_ticks;
+#define I2C_TIMEOUT_MS 20
 
 /* USER CODE END 0 */
 
@@ -29,13 +31,12 @@ uint8_t i2c_rx_data = 0;
 void MX_I2C1_Init(void)
 {
   LL_I2C_InitTypeDef I2C_InitStruct = {0};
-
   LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
-  
+
   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
-  /**I2C1 GPIO Configuration  
+  /**I2C1 GPIO Configuration
   PB6   ------> I2C1_SCL
-  PB7   ------> I2C1_SDA 
+  PB7   ------> I2C1_SDA
   */
   GPIO_InitStruct.Pin = LL_GPIO_PIN_6|LL_GPIO_PIN_7;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
@@ -52,8 +53,7 @@ void MX_I2C1_Init(void)
   NVIC_SetPriority(I2C1_EV_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
   NVIC_EnableIRQ(I2C1_EV_IRQn);
 
-  /** I2C Initialization 
-  */
+  /** I2C Initialization */
   LL_I2C_EnableAutoEndMode(I2C1);
   LL_I2C_DisableOwnAddress2(I2C1);
   LL_I2C_DisableGeneralCall(I2C1);
@@ -72,50 +72,76 @@ void MX_I2C1_Init(void)
   LL_I2C_Enable(I2C1);
 }
 
-
-uint8_t i2c_master_read_byte(uint8_t slave_address, uint8_t register_address)
+/* USER CODE BEGIN 1 */
+static uint8_t i2c_wait(uint32_t (*flag)(I2C_TypeDef *))
 {
-	// Enable It from I2C
-	LL_I2C_EnableIT_RX(I2C1);
-	// Initialize communication
-	LL_I2C_HandleTransfer(I2C1, slave_address, LL_I2C_ADDRSLAVE_7BIT, 1, LL_I2C_MODE_AUTOEND, LL_I2C_GENERATE_START_WRITE);
-	// Send register address
-	while(!LL_I2C_IsActiveFlag_STOP(I2C1))
+	uint32_t start = ms_ticks;
+	while (!flag(I2C1))
 	{
-		if(LL_I2C_IsActiveFlag_TXIS(I2C1))
-		{
-			LL_I2C_TransmitData8(I2C1, register_address);
-		}
+		if (LL_I2C_IsActiveFlag_NACK(I2C1) || (ms_ticks - start) > I2C_TIMEOUT_MS)
+			return 0;
 	}
-	LL_I2C_ClearFlag_STOP(I2C1);
-	while(LL_I2C_IsActiveFlag_STOP(I2C1)){};
+	return 1;
+}
 
-	// Receive data from slave device
-	LL_I2C_HandleTransfer(I2C1, slave_address, LL_I2C_ADDRSLAVE_7BIT, 1, LL_I2C_MODE_AUTOEND, LL_I2C_GENERATE_START_READ);
-	while(!LL_I2C_IsActiveFlag_STOP(I2C1)){};
+static void i2c_recover(void)
+{
+	LL_I2C_Disable(I2C1);
+	__NOP(); __NOP(); __NOP();
+	LL_I2C_Enable(I2C1);
+	LL_I2C_DisableIT_RX(I2C1);
+	i2c_rx_ptr = 0;
+}
 
-	//End of transfer
+void i2c_master_read(uint8_t *buffer, uint8_t length, uint8_t register_addr, uint8_t slave_addr, uint8_t multi)
+{
+	if (multi && length > 1) register_addr |= 0x80;
+
+	i2c_rx_ptr = buffer;
+	LL_I2C_EnableIT_RX(I2C1);
+
+	LL_I2C_HandleTransfer(I2C1, slave_addr, LL_I2C_ADDRSLAVE_7BIT, 1, LL_I2C_MODE_SOFTEND, LL_I2C_GENERATE_START_WRITE);
+	if (!i2c_wait(LL_I2C_IsActiveFlag_TXIS)) { i2c_recover(); return; }
+	LL_I2C_TransmitData8(I2C1, register_addr);
+	if (!i2c_wait(LL_I2C_IsActiveFlag_TC))   { i2c_recover(); return; }
+
+	LL_I2C_HandleTransfer(I2C1, slave_addr, LL_I2C_ADDRSLAVE_7BIT, length, LL_I2C_MODE_AUTOEND, LL_I2C_GENERATE_RESTART_7BIT_READ);
+	if (!i2c_wait(LL_I2C_IsActiveFlag_STOP)) { i2c_recover(); return; }
+
 	LL_I2C_DisableIT_RX(I2C1);
 	LL_I2C_ClearFlag_STOP(I2C1);
 	LL_I2C_ClearFlag_NACK(I2C1);
-
-	return i2c_rx_data;
+	i2c_rx_ptr = 0;
 }
 
-
-void I2C1_EV_IRQHandler(void)
+void i2c_master_write(uint8_t *data, uint8_t length, uint8_t register_addr, uint8_t slave_addr, uint8_t multi)
 {
-	// Check RXNE flag value in ISR register
-	if(LL_I2C_IsActiveFlag_RXNE(I2C1))
+	if (multi && length > 1) register_addr |= 0x80;
+
+	LL_I2C_HandleTransfer(I2C1, slave_addr, LL_I2C_ADDRSLAVE_7BIT, length + 1, LL_I2C_MODE_AUTOEND, LL_I2C_GENERATE_START_WRITE);
+
+	if (!i2c_wait(LL_I2C_IsActiveFlag_TXIS)) { i2c_recover(); return; }
+	LL_I2C_TransmitData8(I2C1, register_addr);
+
+	for (uint8_t i = 0; i < length; i++)
 	{
-		// Call function Master Reception Callback
-		i2c_rx_data = LL_I2C_ReceiveData8(I2C1);
+		if (!i2c_wait(LL_I2C_IsActiveFlag_TXIS)) { i2c_recover(); return; }
+		LL_I2C_TransmitData8(I2C1, data[i]);
+	}
+
+	if (!i2c_wait(LL_I2C_IsActiveFlag_STOP)) { i2c_recover(); return; }
+	LL_I2C_ClearFlag_STOP(I2C1);
+	LL_I2C_ClearFlag_NACK(I2C1);
+}
+
+void i2c_ev_callback(void)
+{
+	if (LL_I2C_IsActiveFlag_RXNE(I2C1))
+	{
+		uint8_t b = LL_I2C_ReceiveData8(I2C1);
+		if (i2c_rx_ptr) *i2c_rx_ptr++ = b;
 	}
 }
-
-
-/* USER CODE BEGIN 1 */
-
 /* USER CODE END 1 */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
